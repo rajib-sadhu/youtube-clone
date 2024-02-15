@@ -169,8 +169,8 @@ const logoutUser = asyncHandler(async (req, res) => {
   await User.findByIdAndUpdate(
     _id,
     {
-      $set: {
-        refreshToken: undefined,
+      $unset: {
+        refreshToken: 1,
       },
     },
     {
@@ -191,9 +191,9 @@ const logoutUser = asyncHandler(async (req, res) => {
 });
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
+  const incomingRefreshToken =
+    req.cookies.refreshToken || req.body.refreshToken;
   try {
-    const incomingRefreshToken =
-      req.cookies.refreshToken || req.body.refreshToken;
 
     if (!incomingRefreshToken) {
       throw new ApiError(401, "Unauthorized request.");
@@ -201,7 +201,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
     const decodedToken = jwt.verify(
       incomingRefreshToken,
-      process.env.ACCESS_TOKEN_SECRET
+      process.env.REFRESH_TOKEN_SECRET
     );
 
     const user = await User.findById(decodedToken?._id);
@@ -370,7 +370,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
         from: "subscriptions",
         localField: "_id",
         foreignField: "subscriber",
-        as: "subscribeTo",
+        as: "subscribedTo",
       },
     },
     {
@@ -379,9 +379,9 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
           $size: "$subscribers",
         },
         channelsSubscribedToCount: {
-          $size: "subscribeTo",
+          $size: "$subscribedTo",
         },
-        isSubscribe: {
+        isSubscribed: {
           $cond: {
             if: { $in: [req.user?._id, "$subscribers.subscriber"] },
             then: true,
@@ -396,7 +396,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
         username: 1,
         subscribersCount: 1,
         channelsSubscribedToCount: 1,
-        isSubscribe,
+        isSubscribed: 1,
         avatar: 1,
         coverImage: 1,
         email: 1,
@@ -464,7 +464,7 @@ const getWatchHistory = asyncHandler(async (req, res) => {
     .json(
       new APIResponse(
         200,
-        user[0].watchHistory,
+        user[0]?.watchHistory,
         "Watch history fetched successfully"
       )
     );
