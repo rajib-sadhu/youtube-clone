@@ -38,7 +38,7 @@ const registerUser = asyncHandler(async (req, res) => {
   // 9 return response
 
   const { username, email, fullName, password } = req.body;
-  // console.log({ username, email, fullName, password });
+  // return console.log(req.body);
 
   // console.log(
   //   "test",
@@ -80,7 +80,7 @@ const registerUser = asyncHandler(async (req, res) => {
   const coverImage = await uploadOnCloudinary(coverImageLocalPath);
 
   if (!avatar) {
-    throw new ApiError(400, "Avatar file is required");
+    throw new ApiError(400, "Something is wrong with avatar file.");
   }
 
   const user = await User.create({
@@ -194,7 +194,6 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   const incomingRefreshToken =
     req.cookies.refreshToken || req.body.refreshToken;
   try {
-
     if (!incomingRefreshToken) {
       throw new ApiError(401, "Unauthorized request.");
     }

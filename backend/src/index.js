@@ -9,6 +9,11 @@ dotenv.config({
 
 const PORT = process.env.PORT || 8000;
 
+app.get("/",async(req,res)=>{
+  res.send('Y Clone Server...')
+})
+
+
 connectDB()
   .then(() => {
     app.listen(PORT, () => {

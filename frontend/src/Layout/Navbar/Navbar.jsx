@@ -62,12 +62,11 @@ const Navbar = () => {
                 </ul>
               </>
             ) : (
-              <button
-                onClick={() => setUser(true)}
-                className="-mt-2 border md:px-4 px-3 md:py-1 hover:text-black hover:bg-sky-300 cursor-pointer rounded-full"
+              <Link to="/login"
+                className="-mt-2 border md:px-4 px-3 md:py-1 hover:text-black hover:bg-sky-300 cursor-pointer rounded-full block"
               >
                 Login
-              </button>
+              </Link>
             )}
           </li>
         </ul>
