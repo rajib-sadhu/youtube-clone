@@ -1,8 +1,7 @@
-import { FaUser, FaImage, FaUserCheck } from "react-icons/fa6";
+import { FaUser, FaSpinner, FaUserCheck } from "react-icons/fa6";
 import { TbPasswordUser } from "react-icons/tb";
 import { IoMdPhotos, IoIosMail } from "react-icons/io";
-import { IoCloseCircle } from "react-icons/io5";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import SocialLogin from "../Shared/SocialLogin";
 
 import bg from "../../assets/login-bg.jpg";
@@ -11,7 +10,12 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import { validateImage } from "../../utils/validateImage";
 
+import toast from "react-hot-toast";
+import { useState } from "react";
+
 const Register = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -19,16 +23,37 @@ const Register = () => {
   } = useForm();
 
   const onSubmit = async (data) => {
+    setIsLoading(true);
     try {
-      const res = await axios.post("/api/v1/users/register", data);
-      console.log(res);
+      const res = await axios.post(
+        "/api/v1/users/register",
+        {
+          fullName: data.fullName,
+          username: data.username,
+          email: data.email,
+          avatar: data.avatar[0],
+          password: data.password,
+        },
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      const result = res.data;
+      console.log(result);
+      if (result.success) {
+        toast.success(result.message);
+      }
+      setIsLoading(false);
+      useNavigate("/login");
     } catch (error) {
-      console.log(error);
-      // const errorMessage = error.response.data.match(/<pre>(.*?)<\/pre>/)[1];
-      // alert(errorMessage); // Or display the message in a modal, toast, etc.
+      console.error(error);
+      toast.error(error.response.data.message);
+      setIsLoading(false);
     }
   };
-  console.log(errors);
+  // console.log(errors);
 
   return (
     <div
@@ -175,7 +200,11 @@ const Register = () => {
           </div> */}
 
             <div className=" pt-2 flex justify-center">
-              <button className="bg-sky-700 text-white md:px-10 px-4 md:pb-3 pb-2 md:pt-2 pt-2 md:text-xl rounded-md">
+              <button
+                disabled={isLoading}
+                className="bg-sky-700 text-white md:px-10 px-4 md:pb-3 pb-2 md:pt-2 pt-2 md:text-xl rounded-md flex items-center"
+              >
+                {isLoading && <FaSpinner className="me-1 mt-1 animate-spin" />}
                 Sign up
               </button>
             </div>
